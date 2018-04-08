@@ -1,0 +1,34 @@
+.Dd April 08, 2018
+.Dt ISROOTDEV 1
+.Os
+.Sh NAME
+.Nm isrootdev
+.Nd check if a specified path is on the root filesystem
+.Sh SYNOPSIS
+.Nm
+.Op Fl n
+.Ar path
+.Sh DESCRIPTION
+.Nm
+compares the device id of the specified path with the device id of the root filesystem
+.Pq Pa / .
+.Pp
+If the path is the same device as root,
+.Nm
+exits successful.
+If the
+.Fl n
+flag is specified
+.Nm
+exits successful if the device is not the same.
+.Pp
+The options are as follows:
+.Bl -tag -width indent
+.It Fl n
+negate the exit code.
+.El
+.Sh SEE ALSO
+.Xr mountpoint 1 ,
+.Xr mount 8
+.Sh AUTHORS
+.An Duncan Overbruck Aq Mt mail@duncano.de
