@@ -1,0 +1,18 @@
+#!/bin/execlineb -S0
+# rc.initrd prog... - switch root to /run/initramfs and run prog
+
+redirfd -r 0 /dev/console
+redirfd -w 1 /dev/console
+fdmove -c 2 1
+
+if { s6-echo -- "Switching back to initramfs..." }
+
+if { s6-mkdir -p /run/initramfs/oldroot /run/initramfs/dev /run/initramfs/proc /run/initramfs/run /run/initramfs/sys }
+
+if { s6-mount -o bind /run/initramfs /run/initramfs }
+if { s6-mount -o bind /dev /run/initramfs/dev }
+if { s6-mount -o bind /proc /run/initramfs/proc }
+if { s6-mount -o bind /run /run/initramfs/run }
+if { s6-mount -o bind /sys /run/initramfs/sys }
+
+s6-pivotchroot /run/initramfs oldroot $@

@@ -1,0 +1,11 @@
+#!/bin/execlineb -P
+
+# foreground
+# {
+#   s6-ipcclient -l0 /dev/log
+#   fdmove 1 7
+#   s6-echo "/etc/rc.shutdown: shutdown requested"
+# }
+
+if { fdmove -c 1 2 s6-echo "s6-rc -da change" }
+s6-rc -t 10000 -da change
