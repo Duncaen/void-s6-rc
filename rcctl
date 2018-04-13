@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+
+usage() {
+	printf "usage: rcctl get|getdef|set service [variable [arguments]]
+	rcctl status|up|down service ...
+	rcctl disable|enable service ...\n" 
+	exit 1
+}
+
+list() {
+	lsarg="$1"
+	case "$lsarg" in
+	all) s6-rc -a listall ;;
+	failed) ;;
+	off) ;;
+	on) ;;
+	started|up) s6-rc -au list ;;
+	stopped|down) s6-rc -du list ;;
+	*) usage ;;
+	esac
+}
+
+status() {
+	for s in $@; do
+		stat=$(s6-svstat "/run/service/$s")
+		[ -z "$stat" ] && continue
+		printf "%s: %s\n" "$s" "$stat"
+	done
+}
+
+[ $# -eq 0 ] && usage
+
+cmd="$1"; shift
+case "$cmd" in
+status) status "$@" ;;
+ls) list "$@" ;;
+disable) list "$@" ;;
+enable) list "$@" ;;
+*) usage ;;
+esac
