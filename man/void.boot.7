@@ -1,0 +1,89 @@
+.Dd April 13, 2018
+.Dt VOID.BOOT 7
+.Os
+.Sh NAME
+.Nm void.boot
+.Nd Void Linux bootup process
+.Sh DESCRIPTION
+.Sh BOOT SCRIPTS
+.Bl -tag -width 11n -compact
+.It init
+process initialization
+.It rc.init
+daemon and service initialization
+.It rc.shutdown
+shutdown process initialization
+.It rc.finish
+shutdown process finalization
+.It rc.initrd
+shutdown process finalization using the initramfs
+.El
+.Sh BUNDLES
+.Ss ok-init
+Early system initialization.
+.Ss ok-local
+.Ss ok-default
+.Sh ONESHOTS
+.Ss init-urandom
+Load/Save the random seed.
+.Ss init-hostname
+Set the hostname.
+.Ss init-dev
+Device initialization using
+.Xr udevd 1 ,
+.Xr mdev 1
+or another suitable implementation.
+.Ss init-tty
+Setup virtual consoles.
+.Ss init-sysctl
+Apply kernel parameters from
+.Pa /etc/sysctl.d/*.conf ,
+.Pa /run/sysctl.d/*.conf ,
+.Pa /usr/lib/sysctl.d/*.conf ,
+and
+.Pa /etc/sysctl.conf .
+.Ss init-dirs
+.Ss mount-dev
+Mount the
+.Pa /dev
+filesystem.
+.Ss mount-proc
+Mount the
+.Pa /proc
+filesystem.
+.Ss mount-sys
+Mount the
+.Pa /sys
+filesystem.
+.Ss mount-cgroups
+Mount the
+.Pa /sys
+filesystem.
+.Ss mount-rw
+Remount the root
+filesystem
+.Pq Pa /
+read-write.
+.Sh BOOTUP
+.Bd -literal
+
+init -+- rc.init -( ok-default || rescue shell )
+      `- s6-svscan
+
+ok-default -+- ok-init -.
+            |           |- mount-dev
+            |           |- mount-proc
+            |           |- mount-sys
+            |           |- mount-cgroups -+- mount-cgroups-base
+            |           |                 `- mount-cgroups-sub
+            |           |- mount-rw
+            |           |- init-urandom
+            |           |- init-hostname
+            |           |- init-dev
+            |           |- init-tty
+            |           |- init-sysctl
+            |           `- init-dirs
+            `- ok-local
+.Ed
+.Sh AUTHORS
+.An Duncan Overbruck Aq Mt mail@duncano.de
