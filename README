@@ -1,0 +1,80 @@
+VOID.BOOT(7)           Miscellaneous Information Manual           VOID.BOOT(7)
+
+NAME
+     void.boot  Void Linux bootup process
+
+DESCRIPTION
+BOOT SCRIPTS
+     init         process initialization
+     rc.init      daemon and service initialization
+     rc.shutdown  shutdown process initialization
+     rc.finish    shutdown process finalization
+     rc.initrd    shutdown process finalization using the initramfs
+
+BUNDLES
+   ok-init
+     Early system initialization.
+
+   ok-local
+
+   ok-default
+
+ONESHOTS
+   init-urandom
+     Load/Save the random seed.
+
+   init-hostname
+     Set the hostname.
+
+   init-dev
+     Device initialization using udevd(1), mdev(1) or another suitable
+     implementation.
+
+   init-tty
+     Setup virtual consoles.
+
+   init-sysctl
+     Apply kernel parameters from /etc/sysctl.d/*.conf, /run/sysctl.d/*.conf,
+     /usr/lib/sysctl.d/*.conf, and /etc/sysctl.conf.
+
+   init-dirs
+
+   mount-dev
+     Mount the /dev filesystem.
+
+   mount-proc
+     Mount the /proc filesystem.
+
+   mount-sys
+     Mount the /sys filesystem.
+
+   mount-cgroups
+     Mount the /sys filesystem.
+
+   mount-rw
+     Remount the root filesystem (/) read-write.
+
+BOOTUP
+
+     init -+- rc.init -( ok-default || rescue shell )
+           `- s6-svscan
+
+     ok-default -+- ok-init -.
+                 |           |- mount-dev
+                 |           |- mount-proc
+                 |           |- mount-sys
+                 |           |- mount-cgroups -+- mount-cgroups-base
+                 |           |                 `- mount-cgroups-sub
+                 |           |- mount-rw
+                 |           |- init-urandom
+                 |           |- init-hostname
+                 |           |- init-dev
+                 |           |- init-tty
+                 |           |- init-sysctl
+                 |           `- init-dirs
+                 `- ok-local
+
+AUTHORS
+     Duncan Overbruck <mail@duncano.de>
+
+Void Linux                      April 13, 2018                      Void Linux
