@@ -1,0 +1,6 @@
+#!/bin/execlineb -P
+
+redirfd -r 0 /etc/fstab
+forstdin -nCd "\n" -- i
+importas -u i i
+s6-echo -- $i

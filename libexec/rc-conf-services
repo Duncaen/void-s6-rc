@@ -1,0 +1,7 @@
+#/bin/execline -P
+redirfd -r 0 /etc/rc.conf
+forstdin -nCd"\n" -- LINE
+importas -u LINE LINE
+multidefine -Cd"=" $LINE { KEY VALUE }
+redirfd -w 1 env/rc.conf/$KEY
+s6-echo -- $VALUE

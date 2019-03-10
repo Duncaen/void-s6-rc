@@ -1,0 +1,54 @@
+#!/bin/execlineb -S1
+# rc-gen-ttys targetdir - generate service directories for ttys(5)
+
+if { s6-test -d ${1} }
+if { s6-mkdir -p ${1}/ok-ttys } 
+
+foreground {
+	redirfd -w 1 ${1}/ok-ttys/type
+	s6-echo "bundle"
+}
+
+foreground {
+	if { fdmove -c 1 2 s6-echo "Adding ok-ttys to ok-multi-user bundle" }
+	redirfd -a 1 ${1}/ok-multi-user/contents
+	s6-echo "ok-ttys"
+}
+
+pipeline {
+	redirfd -r 0 /etc/ttys
+	pipeline { awk -f /usr/local/libexec/tabfile.awk }
+	forstdin -pnCd"\n" -- LINE
+	importas -u LINE LINE
+	multidefine -d "" $LINE { NAME CMD TYPE ON }
+	if { s6-mkdir -p ${1}/getty@$NAME }
+
+	cd ${1}/getty@$NAME
+	foreground {
+		redirfd -w 1 run
+		if { s6-echo "#!/bin/execlineb -P" }
+		if { s6-echo "agetty --noclear ${NAME} linux" }
+		s6-chmod 755 run
+	}
+	if { s6-touch down }
+
+	foreground {
+		redirfd -w 1 dependencies
+		if { s6-echo "init-dev" }
+		if { s6-echo "init-tty" }
+		if { s6-echo "init-sysctl" }
+		if { s6-echo "multi-user" }
+	}
+
+	foreground {
+		redirfd -w 1 type
+		if { s6-echo "longrun" }
+	}
+
+	if { fdmove -c 1 2 s6-echo "Creating getty@$NAME" }
+
+	if { s6-test "$ON" = "on" }
+	s6-echo -- "getty@$NAME"
+}
+redirfd -w 1 ${1}/ok-ttys/contents
+s6-cat

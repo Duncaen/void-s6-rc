@@ -1,0 +1,32 @@
+#!%%EXECLINE%% -P
+# rc-db-compile -- compile a new s6-rc database 
+
+backtick -in date { s6-clock }
+backtick -in host { s6-hostname }
+multisubstitute {
+	importas -iu date date
+	importas -iu host host
+}
+
+foreground {
+	if { s6-mkdir -p /tmp/rc-compile-$date }
+
+	foreground {
+		forx -- src { /etc/s6/source/base }
+		importas -s src src
+		elglob -0 dir ${src}/*
+		forx -- svc { $dir }
+		importas -i svc svc
+		backtick -n nam { s6-basename $svc }
+		importas -i nam nam
+		s6-hiercopy $svc /tmp/rc-compile-${date}/${nam}
+	}
+
+	if { %%LIBEXEC%%/rc-gen-ttys /tmp/rc-compile-${date} }
+	if { %%LIBEXEC%%/rc-gen-auto /tmp/rc-compile-${date} }
+
+	# if { s6-ln -snf ${host} /etc/s6/env/host }
+	if { s6-rc-compile -v 3 -h sysfdh /etc/s6-rc/compiled-$date /tmp/rc-compile-${date} }
+	if { s6-ln -snf compiled-$date /etc/s6-rc/compiled.new }
+}
+s6-rmrf /tmp/rc-compile-${date}

@@ -1,0 +1,30 @@
+#!/bin/execlineb -S1
+
+export auto_btrfs yes
+export auto_dm-crypt yes
+export auto_dmraid yes
+export auto_lvm yes
+export auto_zfs yes
+export auto_modules-load yes
+export auto_fsck-fstab yes
+
+# automatic filesystem initializations
+foreground {
+	pipeline {
+		forx -- auto { btrfs dm-crypt dmraid lvm zfs modules-load fsck-fstab }
+		importas -us auto auto
+		if { fdmove -c 1 2 s6-echo "is auto_${auto} enabled?" }
+		if -t { s6-test -v "auto_${auto}" }
+		if { s6-hiercopy /etc/s6/source/auto/init-${auto} ${1}/init-${auto} }
+		if { fdmove -c 1 2 s6-echo -- "enabling init-${auto}" }
+		s6-echo -- "init-${auto}"
+	}
+	redirfd -a 1 ${1}/ok-init/contents
+	s6-cat
+}
+
+foreground {
+	if { s6-test -v "auto_fsck-fstab" }
+	redirfd -a 1 ${1}/mount-rw/dependencies
+	s6-echo -- "init-fsck-fstab"
+}

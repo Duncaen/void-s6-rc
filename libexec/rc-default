@@ -1,0 +1,10 @@
+#!/bin/execlineb -P
+
+backtick -in newpath { readlink -f /etc/s6-rc/compiled.new }
+importas -iu newpath newpath
+
+backtick -in newdb { s6-basename $newpath }
+importas -iu newdb newdb
+
+if { s6-ln -snf $newdb /etc/s6-rc/compiled }
+if { s6-rmrf /etc/s6-rc/compiled.new }

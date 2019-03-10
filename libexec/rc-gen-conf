@@ -1,0 +1,24 @@
+#!/bin/execlineb -P
+# rc-gen-conf
+
+# multidefine -Cd"=" $LINE { KEY VALUE }
+
+emptyenv -p
+foreground {
+	forx -- src { /etc/rc.conf.d }
+	importas -s src src
+	cd $src
+	elglob -0 dir *.conf
+	forx -- conf { $dir }
+	importas -is conf conf
+	backtick -in svc { s6-basename $conf .conf }
+	importas -is svc svc
+	redirfd -r 0 $conf
+	pipeline { s6-grep -v "^#" }
+	forstdin -pnCd"\n" -- LINE
+	importas -u LINE LINE
+	multidefine -d"=" -- $LINE { KEY VALUE }
+	if { s6-test -n $VALUE }
+	s6-echo -- $KEY > $VALUE
+}
+s6-env

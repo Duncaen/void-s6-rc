@@ -1,0 +1,11 @@
+#!/bin/execlineb -P
+# rc-db-pruge - delete s6-rc databases that are older than the current one
+
+pipeline { /usr/local/libexec/rc-db-old }
+foreground {
+	forstdin -x 1 -- db
+	importas -u db db
+	if { s6-test $db != $curdb }
+	if { s6-echo -- "removing $db" }
+	s6-rmrf /etc/s6-rc/$db
+}

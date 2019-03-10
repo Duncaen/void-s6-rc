@@ -1,0 +1,6 @@
+#!/bin/execlineb -P
+
+emptyenv -p
+s6-envdir /etc/s6/env/tty
+unexport PATH
+/bin/s6-env

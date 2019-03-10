@@ -1,0 +1,19 @@
+#!/bin/execlineb -P
+# rc-db-old - print s6-rc databases that are older than the current one
+
+backtick -in curpath { readlink -f /etc/s6-rc/compiled }
+importas -iu curpath curpath
+
+backtick -in curdb { s6-basename $curpath }
+importas -iu curdb curdb
+
+pipeline {
+	elglob -s dirs /etc/s6-rc/compiled-@*
+	forx -- i { $dirs }
+	importas -u i i
+	s6-basename $i
+}
+forstdin -x 1 -- db
+importas -u db db
+if { s6-test $db != $curdb }
+s6-echo -- $db
