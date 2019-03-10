@@ -5,9 +5,19 @@
 .Nm void.boot
 .Nd Void Linux bootup process
 .Sh DESCRIPTION
+.Ss BUNDLES
+Bundles are a set of atomic services
+.Po
+.Sx ONESHOTS
+or
+.Sx LONGRUNS
+.Pc
+and other bundles.
+.Ss ONESHOTS
+.Ss LONGRUNS
 .Sh BOOT SCRIPTS
 .Bl -tag -width 11n -compact
-.It init
+.It Xr init 8
 process initialization
 .It rc.init
 daemon and service initialization
@@ -18,52 +28,65 @@ shutdown process finalization
 .It rc.initrd
 shutdown process finalization using the initramfs
 .El
-.Sh BUNDLES
-.Ss ok-init
+.Sh DEFAULT SERVICES
+.Ss TARGETS
+The following services are bundles that act as boot targets:
+.Bl -tag -width Ds
+.It ok-init
 Early system initialization.
-.Ss ok-local
-.Ss ok-default
-.Sh ONESHOTS
-.Ss init-urandom
+.It ok-local
+.It ok-default
+.El
+.Pp
+.Ss INIT SERVICES
+The following services are bundles that act as early boot targets:
+.Bl -tag -width Ds
+.It init-urandom
 Load/Save the random seed.
-.Ss init-hostname
+.It init-hostname
 Set the hostname.
-.Ss init-dev
+.It init-dev
 Device initialization using
 .Xr udevd 1 ,
 .Xr mdev 1
 or another suitable implementation.
-.Ss init-tty
+.It init-tty
 Setup virtual consoles.
-.Ss init-sysctl
+.It init-sysctl
 Apply kernel parameters from
 .Pa /etc/sysctl.d/*.conf ,
 .Pa /run/sysctl.d/*.conf ,
 .Pa /usr/lib/sysctl.d/*.conf ,
 and
 .Pa /etc/sysctl.conf .
-.Ss init-dirs
-.Ss mount-dev
+.It init-dirs
+.It mount-dev
 Mount the
 .Pa /dev
 filesystem.
-.Ss mount-proc
+.It mount-proc
 Mount the
 .Pa /proc
 filesystem.
-.Ss mount-sys
+.It mount-sys
 Mount the
 .Pa /sys
 filesystem.
-.Ss mount-cgroups
+.It mount-cgroups
+.It mount-cgroups-base
 Mount the
-.Pa /sys
+.Pa /sys/fs/cgroup
 filesystem.
-.Ss mount-rw
+.It mount-cgroups-sub
+Mount the
+.Pa /sys/fs/cgroup/*
+filesystems.
+.It mount-rw
 Remount the root
 filesystem
 .Pq Pa /
 read-write.
+.El
 .Sh BOOTUP
 .Bd -literal
 

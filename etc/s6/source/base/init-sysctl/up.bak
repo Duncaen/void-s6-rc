@@ -1,0 +1,16 @@
+if { fdmove -c 1 2 s6-echo -- "\033[1m=> Loading sysctl(8) settings...\033[m" }
+forx pat {
+	/run/sysctl.d/*.conf
+	/etc/sysctl.d/*.conf
+	/usr/local/lib/sysctl.d/*.conf
+	/usr/lib/sysctl.d/*.conf
+	/etc/sysctl.conf
+}
+importas -u pat pat
+elglob -0 file ${pat}
+if {
+	redirfd -c 2 /dev/null
+	s6-test -n ${file}
+}
+foreground { fdmove -c 1 2 s6-echo -- "* Applying ${file} ..." }
+sysctl -p $file

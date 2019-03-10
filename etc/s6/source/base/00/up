@@ -1,0 +1,1 @@
+foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> init stage2\033[m" }

@@ -1,0 +1,11 @@
+#!/bin/execlineb -P
+
+backtick -in -- tty {
+	pipeline { redirfd -r 0 /sys/class/tty/console/active s6-cat }
+	s6-cut -f1 -d" "
+}
+importas -iu tty tty
+redirfd -r 0 /dev/$tty
+redirfd -w 1 /dev/$tty
+fdmove -c 2 1
+s6-setsid -q -- sulogin

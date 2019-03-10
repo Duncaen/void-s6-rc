@@ -1,6 +1,6 @@
-#!/bin/execlineb -WP
+#!/usr/local/bin/execline -WP
 
-/bin/export PATH /usr/bin:/usr/sbin
+/bin/export PATH %%DEFAULT_PATH%%
 cd /
 
 s6-setsid -qb --
@@ -34,7 +34,8 @@ background
 	redirfd -w 1 /run/service/s6-svscan-log/fifo
 	# XXX: move stderr to uncaught logs if quiet?
 	# fdmove -c 2 1
-	/etc/s6/rc.init
+	if -nt { /etc/s6/rc.init }
+	/etc/s6/rc.rescue
 }
 unexport !
 

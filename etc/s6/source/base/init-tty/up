@@ -1,0 +1,21 @@
+foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Setting up terminals...\033[m" }
+s6-envdir /etc/s6/env/tty
+multisubstitute {
+	importas font font
+	importas keymap keymap
+	importas -isu ttys ttys
+}
+
+foreground {
+	pipeline { s6-seq ${ttys} }
+	forstdin -pn -- i
+	importas -iu i i
+	if { s6-test -v "font" }
+	foreground { setfont ${font} -C tty${i} }
+}
+
+foreground {
+	if { s6-test -v "keymap" }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Setting up keymap to '${keymap}'...\033[m" }
+	loadkeys -q -u ${keymap}
+}

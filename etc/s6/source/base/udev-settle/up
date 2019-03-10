@@ -1,0 +1,2 @@
+foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Waiting for devices to settle...\033[m" }
+udevadm settle

@@ -1,0 +1,16 @@
+# NOTE(dh): ZFS has ZVOLs, block devices on top of storage pools.
+# In theory, it would be possible to use these as devices in
+# dmraid, btrfs, LVM and so on. In practice it's unlikely that
+# anybody is doing that, so we aren't supporting it for now.
+
+foreground {
+	if { s6-test -x /usr/bin/zpool }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating ZFS devices...\033[m" }
+	if { zpool import -c /etc/zfs/zpool.cache -N -a }
+
+	if { s6-test -x /usr/bin/zfs }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Mounting ZFS file systems...\033[m" }
+	if { zfs mount -a }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Sharing ZFS file systems...\033[m" }
+	if { zfs share -a }
+}

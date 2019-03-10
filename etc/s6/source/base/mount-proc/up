@@ -1,0 +1,3 @@
+# foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Mounting pseudo-filesystem: /proc\033[m" }
+
+if -t { isrootdev /proc } s6-mount -wt proc proc /proc

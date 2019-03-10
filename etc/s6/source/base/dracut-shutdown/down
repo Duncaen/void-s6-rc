@@ -1,0 +1,5 @@
+if { fdmove -c 1 2 s6-echo "dracut-shutdown: down" }
+if { s6-touch /run/initramfs/.need_shutdown }
+foreground { /usr/lib/dracut/dracut-initramfs-restore }
+importas -u ? ?
+if { fdmove -c 1 2 s6-echo "dracut-shutdown: exit $?" }

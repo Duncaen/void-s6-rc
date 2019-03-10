@@ -1,0 +1,5 @@
+mount-dev
+mount-proc
+mount-sys
+
+init-static-devnodes

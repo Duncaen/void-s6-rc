@@ -1,0 +1,5 @@
+foreground {
+	if { s6-test -x "/usr/bin/dmraid" }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating dmraid devices...\033[m" }
+	foreground { dmraid -i -ay }
+}

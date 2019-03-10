@@ -1,0 +1,19 @@
+if { fdmove -c 1 2 s6-echo -- "\033[1m=> Initializing random seed...\033[m" }
+
+foreground
+{
+	fdclose 2
+	redirfd -r 0 /var/lib/random-seed
+	redirfd -w 1 /dev/urandom
+	s6-cat
+}
+if { s6-rmrf /var/lib/random-seed }
+if { s6-fillurandompool }
+
+background {
+	backtick -nD "512" -- bytes { redirfd -r 0 /proc/sys/kernel/random/poolsize s6-cat }
+	importas -iu bytes bytes
+	foreground {
+		dd if=/dev/urandom of=/var/lib/random-seed count=1 bs=${bytes} status=none
+	}
+}

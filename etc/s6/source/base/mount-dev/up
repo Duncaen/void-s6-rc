@@ -1,0 +1,8 @@
+# foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Mounting pseudo-filesystem: /dev/pts /dev/shm\033[m" }
+
+if { s6-mkdir -p /dev/pts /dev/shm }
+
+if -t { isrootdev /dev/pts }
+if { s6-mount -t devpts -o mode=0620,gid=5,nosuid,noexec devpts /dev/pts }
+if -t { isrootdev /dev/shm }
+s6-mount -t tmpfs -o mode=1777,nosuid,nodev shm /dev/shm

@@ -1,0 +1,2 @@
+foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Remounting root rw...\033[m" }
+mount -o remount,rw /

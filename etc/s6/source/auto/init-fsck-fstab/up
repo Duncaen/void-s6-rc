@@ -1,0 +1,20 @@
+if -t { s6-test -e /etc/fstab -a ! -f /fastboot }
+if { fdmove -c 1 2 s6-echo -- "\033[1m=> Checking filesystems...\033[m" }
+
+ifthenelse
+{ s6-test -e /forcefsck }
+{ fsck -A -T -a -t noopts=_netdev -f }
+{ fsck -A -T -a -t noopts=_netdev }
+
+importas -u ? ?
+ifelse
+{ s6-test $? -le 1 }
+{ }
+redirfd -w 1 /run/issue 
+ifelse
+{ s6-test $? -eq 2 }
+{ s6-echo "fsck: System should be rebooted" }
+ifelse
+{ s6-test $? -eq 3 }
+{ s6-echo "fsck: Filesystem errors left uncorrected" }
+{ s6-echo "fsck: unhandled exit code '$?' see fsck(8)" }

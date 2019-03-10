@@ -1,0 +1,40 @@
+# Do not try to load modules if kernel does not support them.
+if -t { s6-test -e /proc/modules }
+
+if { fdmove -c 1 2 s6-echo -- "\033[1m=> Loading kernel modules...\033[m" }
+
+# Parameters passed as modules-load= or rd.modules-load= in kernel command line.
+foreground {
+	redirfd -r 0 /proc/cmdline
+	pipeline { sed -nr -e "s/(.* |^)(rd\\.)?modules-load=([^ ]*).*/\\3/p" }
+	forstdin -n -- modules
+	importas -su -d "," modules modules
+	modprobe -ab -- ${modules}
+}
+
+foreground {
+	# Find files /{etc,run,usr/lib}/modules-load.d/*.conf in that order.
+	pipeline {
+		redirfd -w 2 /dev/null
+		forx -- d { /etc /run /usr/lib }
+		importas -iu d d
+		elglob -s0 -- f ${d}/modules-load.d/*.conf
+		if { s6-echo -n "${f} " }
+		s6-basename ${f}
+	}
+	# Load each basename only once.
+	pipeline { sort -k2 -s }
+	pipeline { uniq -f1 }
+	pipeline { s6-cut -f1 -d" " }
+	# Read the files, output all non-empty, non-comment lines.
+	pipeline {
+		forstdin -- f
+		importas -iu f f
+		redirfd -r 0 ${f}
+		pipeline { s6-grep -v "^[#;]" }
+		s6-grep -v "^$"
+	}
+	forstdin -- m
+	importas -iu m m
+	modprobe -ab ${m}
+}

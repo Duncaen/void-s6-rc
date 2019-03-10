@@ -1,0 +1,5 @@
+foreground {
+	if { s6-test -x "/usr/bin/btrfs" }
+	if { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating btrfs devices...\033[m" }
+	btrfs device scan
+}

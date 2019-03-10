@@ -1,0 +1,5 @@
+foreground {
+	if { s6-test -x "/usr/bin/vgchange" }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating LVM devices...\033[m" }
+	vgchange --sysinit -a y
+}

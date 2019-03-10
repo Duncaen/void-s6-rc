@@ -1,0 +1,12 @@
+mount-dev
+mount-proc
+mount-sys
+mount-cgroups
+mount-rw
+
+init-urandom
+init-hostname
+init-dev
+init-tty
+init-sysctl
+init-dirs

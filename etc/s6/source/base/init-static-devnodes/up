@@ -1,0 +1,7 @@
+foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Loading static-node modules...\033[m" }
+
+pipeline { kmod static-nodes --format=devname }
+pipeline { s6-cut -f1 -d" " }
+forstdin -pd "\n" -- mod
+importas -iu mod mod
+modprobe -q ${mod}

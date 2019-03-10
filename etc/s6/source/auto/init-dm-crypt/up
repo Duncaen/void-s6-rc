@@ -1,0 +1,8 @@
+foreground {
+	if { s6-test -e /etc/crypttab }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating encrypted devices...\033[m" }
+	if { awk -f /etc/s6/crypt.awk /etc/crypttab }
+	if { s6-test -x /usr/bin/vgchange }
+	foreground { fdmove -c 1 2 s6-echo -- "\033[1m=> Activating LVM devices for dm-crypt...\033[m" }
+	vgchange --sysinit -a y
+}
